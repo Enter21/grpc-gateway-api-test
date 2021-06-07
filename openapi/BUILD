@@ -5,26 +5,26 @@ proto_library(
     name = "service_proto",
     srcs = ["service.proto"],
     deps = [
-      ":bar_proto",
-      "@grpc_ecosystem_grpc_gateway//protoc-gen-openapiv2/options:options_proto",
-      "@com_github_googleapis_googleapis//google/api:annotations_proto",
+        ":bar_proto",
+        "@com_github_googleapis_googleapis//google/api:annotations_proto",
+        "@grpc_ecosystem_grpc_gateway//protoc-gen-openapiv2/options:options_proto",
     ],
 )
 
 proto_library(
     name = "bar_proto",
     srcs = [
-      "bar.proto",
+        "bar.proto",
     ],
     deps = [
-      "@grpc_ecosystem_grpc_gateway//protoc-gen-openapiv2/options:options_proto",
+        "@grpc_ecosystem_grpc_gateway//protoc-gen-openapiv2/options:options_proto",
     ],
 )
 
 proto_library(
     name = "api_proto",
     srcs = [
-      "api.proto",
+        "api.proto",
     ],
     deps = [
         "//common/domain:point_proto",
@@ -34,6 +34,10 @@ proto_library(
 
 protoc_gen_openapiv2(
     name = "openapi",
-    proto = [":api_proto", ":service_proto", "//common/domain:point_service_proto"],
+    proto = [
+        ":api_proto",
+        ":service_proto",
+        "//common/domain:point_service_proto",
+    ],
     single_output = True,
 )
