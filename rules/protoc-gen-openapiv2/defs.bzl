@@ -1,4 +1,5 @@
 """Generated an open-api spec for a grpc api spec.
+
 Reads the the api spec in protobuf format and generate an open-api spec.
 Optionally applies settings from the grpc-service configuration.
 """
@@ -9,14 +10,17 @@ load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 # https://github.com/bazelbuild/rules_proto/pull/22 lands.
 def _direct_source_infos(proto_info, provided_sources = []):
     """Returns sequence of `ProtoFileInfo` for `proto_info`'s direct sources.
+
     Files that are both in `proto_info`'s direct sources and in
     `provided_sources` are skipped. This is useful, e.g., for well-known
     protos that are already provided by the Protobuf runtime.
+
     Args:
       proto_info: An instance of `ProtoInfo`.
       provided_sources: Optional. A sequence of files to ignore.
           Usually, these files are already provided by the
           Protocol Buffer runtime (e.g. Well-Known protos).
+
     Returns: A sequence of `ProtoFileInfo` containing information about
         `proto_info`'s direct sources.
     """
@@ -105,14 +109,11 @@ def _run_proto_gen_openapi(
 
     args.add("--openapiv2_opt", "repeated_path_param_separator=%s" % repeated_path_param_separator)
 
-    # Fix here
-    proto_file_infos = [_direct_source_infos(proto_infosing) for proto_infosing in proto_info]
-    proto_file_infos = [item for sublist in proto_file_infos for item in sublist]
+    proto_file_infos = _direct_source_infos(proto_info)
 
     # TODO(yannic): Use |proto_info.transitive_descriptor_sets| when
     # https://github.com/bazelbuild/bazel/issues/9337 is fixed.
-    for proto_infosing in proto_info:
-        args.add_all(proto_infosing.transitive_proto_path, format_each = "--proto_path=%s")
+    args.add_all(proto_info.transitive_proto_path, format_each = "--proto_path=%s")
 
     if single_output:
         args.add("--openapiv2_opt", "allow_merge=true")
@@ -175,17 +176,17 @@ def _run_proto_gen_openapi(
     return openapi_files
 
 def _proto_gen_openapi_impl(ctx):
-    protos = [src[ProtoInfo] for src in ctx.attr.proto]
+    proto = ctx.attr.proto[ProtoInfo]
     return [
         DefaultInfo(
             files = depset(
                 _run_proto_gen_openapi(
                     actions = ctx.actions,
-                    proto_info = protos,
+                    proto_info = proto,
                     target_name = ctx.attr.name,
                     transitive_proto_srcs = depset(
                         direct = ctx.files._well_known_protos,
-                        transitive = [proto.transitive_sources for proto in protos],
+                        transitive = [proto.transitive_sources],
                     ),
                     protoc = ctx.executable._protoc,
                     protoc_gen_openapiv2 = ctx.executable._protoc_gen_openapi,
@@ -209,7 +210,7 @@ def _proto_gen_openapi_impl(ctx):
 
 protoc_gen_openapiv2 = rule(
     attrs = {
-        "proto": attr.label_list(
+        "proto": attr.label(
             mandatory = True,
             providers = [ProtoInfo],
         ),
@@ -298,7 +299,7 @@ protoc_gen_openapiv2 = rule(
             allow_files = True,
         ),
         "_protoc_gen_openapi": attr.label(
-            default = Label("@grpc_ecosystem_grpc_gateway//protoc-gen-openapiv2:protoc-gen-openapiv2"),
+            default = Label("//protoc-gen-openapiv2:protoc-gen-openapiv2"),
             executable = True,
             cfg = "host",
         ),
