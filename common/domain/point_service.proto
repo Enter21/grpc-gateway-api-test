@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package domain;
+
+option go_package = "domain";
+option java_generic_services = true;
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "domain/point.proto";
+
+message PointRequest {
+    Point point = 1;
+}
+
+message Response {
+    bool response = 1;
+}
+
+service PointService {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+        description: 'A Point Service'
+    };
+
+    rpc RequestPoints(PointRequest) returns (Response) {
+        option (google.api.http) = {
+            get: "/points"
+        };
+
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Do something cool";
+            description: "Ahhhhh";
+        };
+    };
+}
