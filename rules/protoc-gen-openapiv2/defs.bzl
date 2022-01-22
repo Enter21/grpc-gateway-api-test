@@ -298,7 +298,7 @@ protoc_gen_openapiv2 = rule(
             allow_files = True,
         ),
         "_protoc_gen_openapi": attr.label(
-            default = Label("@grpc_ecosystem_grpc_gateway//protoc-gen-openapiv2:protoc-gen-openapiv2"),
+            default = Label("@com_github_grpc_ecosystem_grpc_gateway_v2//protoc-gen-openapiv2:protoc-gen-openapiv2"),
             executable = True,
             cfg = "host",
         ),
